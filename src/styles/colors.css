@@ -1,0 +1,21 @@
+:root {
+  /* Primary Colors */
+  --color-primary-blue-1: #1D77C0;
+  --color-primary-orange-1: #FF7F22;
+
+  /* Secondary Colors */
+  --color-secondary-blue-2: #4A77BA;
+  --color-secondary-orange-2: #FEA259;
+
+  /* Tertiary Colors */
+  --color-tertiary-blue-3: #DCEEFB;
+  --color-tertiary-dark-blue: #001042;
+
+  /* Additional colors for text, backgrounds. */
+  --color-text-dark: #001042;
+  --color-text-light: #FFFFFF;
+  --color-background-light: #F8F8F8;
+  --color-background-dark: #333333; /* Dark Mode */
+  --color-card-background-light: #FFFFFF;
+  --color-card-background-dark: #444444; /* Dark Mode */
+}
