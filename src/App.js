@@ -3,6 +3,7 @@ import { getAllCountries, getCountriesByName, getCountriesByRegion } from './con
 import CountryCard from './components/CountryCard/CountryCard';
 import SearchBar from './components/SearchBar/SearchBar';
 import RegionFilter from './components/RegionFilter/RegionFilter';
+import Pagination from './components/Pagination/Pagination';
 import './App.css';
 
 function App() {
@@ -12,10 +13,14 @@ function App() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedRegion, setSelectedRegion] = useState('');
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const [countriesPerPage] = useState(12);
+
   useEffect(() => {
     const fetchCountries = async () => {
       setLoading(true);
       setError(null);
+      setCurrentPage(1);
 
       try {
         let data;
@@ -53,6 +58,14 @@ function App() {
     setSearchTerm('');
   };
 
+  const indexOfLastCountry = currentPage * countriesPerPage;
+  const indexOfFirstCountry = indexOfLastCountry - countriesPerPage;
+  const currentCountries = countries.slice(indexOfFirstCountry, indexOfLastCountry);
+
+  const totalPages = Math.ceil(countries.length / countriesPerPage);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
   if (loading) {
     return <div className="app-container">Loading countries...</div>;
   }
@@ -71,14 +84,23 @@ function App() {
         </div>
       </header>
       <main className="country-list-container">
-        {countries.length > 0 ? (
-          countries.map((country) => (
+        {currentCountries.length > 0 ? (
+          currentCountries.map((country) => (
             <CountryCard key={country.cca3} country={country} />
           ))
         ) : (
           !loading && <p className="no-results-message">{error || "No countries to display."}</p>
         )}
       </main>
+      {countries.length > countriesPerPage && (
+        <Pagination
+          countriesPerPage={countriesPerPage}
+          totalCountries={countries.length}
+          paginate={paginate}
+          currentPage={currentPage}
+          totalPages={totalPages}
+        />
+      )}
     </div>
   );
 }
