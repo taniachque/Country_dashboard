@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { getAllCountries, getCountriesByName, getCountriesByRegion } from './controllers/countryController';
 import CountryCard from './components/CountryCard/CountryCard';
 import SearchBar from './components/SearchBar/SearchBar';
 import RegionFilter from './components/RegionFilter/RegionFilter';
 import Pagination from './components/Pagination/Pagination';
+import CountryDetail from './components/CountryDetail/CountryDetail';
 import './App.css';
 
 function App() {
@@ -66,42 +68,48 @@ function App() {
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
-  if (loading) {
-    return <div className="app-container">Loading countries...</div>;
-  }
-
-  if (error && countries.length === 0) {
-    return <div className="app-container error-message">{error}</div>;
-  }
-
   return (
-    <div className="app-container">
-      <header className="app-header">
-        <h1>Country Dashboard</h1>
-        <div className="filters-container">
-          <SearchBar onSearch={handleSearch} />
-          <RegionFilter onSelectRegion={handleSelectRegion} currentRegion={selectedRegion} />
-        </div>
-      </header>
-      <main className="country-list-container">
-        {currentCountries.length > 0 ? (
-          currentCountries.map((country) => (
-            <CountryCard key={country.cca3} country={country} />
-          ))
-        ) : (
-          !loading && <p className="no-results-message">{error || "No countries to display."}</p>
-        )}
-      </main>
-      {countries.length > countriesPerPage && (
-        <Pagination
-          countriesPerPage={countriesPerPage}
-          totalCountries={countries.length}
-          paginate={paginate}
-          currentPage={currentPage}
-          totalPages={totalPages}
-        />
-      )}
-    </div>
+    <BrowserRouter>
+      <div className="app-container">
+        <header className="app-header">
+          <h1>Country Dashboard</h1>
+        </header>
+
+        <Routes>
+          <Route path="/" element={
+            <>
+              <div className="filters-container">
+                <SearchBar onSearch={handleSearch} />
+                <RegionFilter onSelectRegion={handleSelectRegion} currentRegion={selectedRegion} />
+              </div>
+              <main className="country-list-container">
+                {loading ? (
+                  <div>Loading countries...</div>
+                ) : error && countries.length === 0 ? (
+                  <div className="error-message">{error}</div>
+                ) : currentCountries.length > 0 ? (
+                  currentCountries.map((country) => (
+                    <CountryCard key={country.cca3} country={country} />
+                  ))
+                ) : (
+                  <p className="no-results-message">{error || "No countries to display."}</p>
+                )}
+              </main>
+              {countries.length > countriesPerPage && (
+                <Pagination
+                  countriesPerPage={countriesPerPage}
+                  totalCountries={countries.length}
+                  paginate={paginate}
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                />
+              )}
+            </>
+          } />
+          <Route path="/country/:countryCode" element={<CountryDetail />} />
+        </Routes>
+      </div>
+    </BrowserRouter>
   );
 }
 

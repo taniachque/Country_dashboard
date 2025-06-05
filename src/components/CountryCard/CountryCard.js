@@ -1,13 +1,20 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import './CountryCard.css';
 
 const CountryCard = ({ country }) => {
+  const navigate = useNavigate();
+
   const getFlagUrl = (countryCode) => {
     return `https://flagsapi.com/${countryCode}/flat/64.png`;
   };
 
+  const handleClick = () => {
+    navigate(`/country/${country.cca3}`);
+  };
+
   return (
-    <div className="country-card">
+    <div className="country-card" onClick={handleClick}>
       <img
         src={getFlagUrl(country.cca2)}
         alt={`Flag of ${country.name.common}`}
