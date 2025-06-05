@@ -1,49 +1,73 @@
 import React, { useState, useEffect } from 'react';
-import { getAllCountries } from './controllers/countryController';
+import { getAllCountries, getCountriesByName } from './controllers/countryController';
 import CountryCard from './components/CountryCard/CountryCard';
+import SearchBar from './components/SearchBar/SearchBar';
 import './App.css';
 
 function App() {
-  const[countries, setCountries] = useState([]);
+  const [countries, setCountries] = useState([]);
   const [loading, setLoading] = useState(true);
-  const[error, setError] = useState(null);
+  const [error, setError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
-    const fetchInitialCountries = async () =>{
+    const fetchCountries = async () => {
+      setLoading(true);
+      setError(null);
+
       try {
-        const data = await getAllCountries();
+        let data;
+        if (searchTerm) {
+          data = await getCountriesByName(searchTerm);
+        } else {
+          data = await getAllCountries();
+        }
         setCountries(data);
-        setLoading(false);
       } catch (err) {
-        setError('Failed to fetch countries. Please try again later.');
+        if (err.response && err.response.status === 404) {
+          setCountries([]);
+          setError('No countries found matching your search.');
+        } else {
+          setError('Failed to fetch countries. Please try again later.');
+          console.error('Error fetching countries:', err);
+        }
+      } finally {
         setLoading(false);
       }
     };
 
-    fetchInitialCountries();
-  }, []);
+    fetchCountries();
+  }, [searchTerm]);
+
+  const handleSearch = (term) => {
+    setSearchTerm(term);
+  };
 
   if (loading) {
-    return <div className='app-container'>Loading countries...</div>
+    return <div className="app-container">Loading countries...</div>;
   }
 
-  if (error) {
-    return <div className='app-container error-message'>{error}</div>
+  if (error && countries.length === 0) {
+    return <div className="app-container error-message">{error}</div>;
   }
 
   return (
     <div className="app-container">
       <header className="app-header">
         <h1>Country dashboard</h1>
+        <SearchBar onSearch={handleSearch} />
       </header>
-      <main className='country-list-container'>
-        {countries.map((country) => (
-          <CountryCard key={country.cca3} country={country} />
-        ))}
-
+      <main className="country-list-container">
+        {countries.length > 0 ? (
+          countries.map((country) => (
+            <CountryCard key={country.cca3} country={country} />
+          ))
+        ) : (
+          !loading && <p className="no-results-message">{error || "No countries to display."}</p>
+        )}
       </main>
     </div>
   );
 }
 
-export default App;
+export default App; 
