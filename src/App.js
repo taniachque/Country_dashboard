@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { getAllCountries, getCountriesByName } from './controllers/countryController';
+import { getAllCountries, getCountriesByName, getCountriesByRegion } from './controllers/countryController';
 import CountryCard from './components/CountryCard/CountryCard';
 import SearchBar from './components/SearchBar/SearchBar';
+import RegionFilter from './components/RegionFilter/RegionFilter';
 import './App.css';
 
 function App() {
@@ -9,6 +10,7 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedRegion, setSelectedRegion] = useState('');
 
   useEffect(() => {
     const fetchCountries = async () => {
@@ -19,6 +21,8 @@ function App() {
         let data;
         if (searchTerm) {
           data = await getCountriesByName(searchTerm);
+        } else if (selectedRegion) {
+          data = await getCountriesByRegion(selectedRegion);
         } else {
           data = await getAllCountries();
         }
@@ -26,7 +30,7 @@ function App() {
       } catch (err) {
         if (err.response && err.response.status === 404) {
           setCountries([]);
-          setError('No countries found matching your search.');
+          setError('No countries found matching your criteria.');
         } else {
           setError('Failed to fetch countries. Please try again later.');
           console.error('Error fetching countries:', err);
@@ -37,10 +41,16 @@ function App() {
     };
 
     fetchCountries();
-  }, [searchTerm]);
+  }, [searchTerm, selectedRegion]);
 
   const handleSearch = (term) => {
     setSearchTerm(term);
+    setSelectedRegion('');
+  };
+
+  const handleSelectRegion = (region) => {
+    setSelectedRegion(region);
+    setSearchTerm('');
   };
 
   if (loading) {
@@ -54,8 +64,11 @@ function App() {
   return (
     <div className="app-container">
       <header className="app-header">
-        <h1>Country dashboard</h1>
-        <SearchBar onSearch={handleSearch} />
+        <h1>Country Dashboard</h1>
+        <div className="filters-container">
+          <SearchBar onSearch={handleSearch} />
+          <RegionFilter onSelectRegion={handleSelectRegion} currentRegion={selectedRegion} />
+        </div>
       </header>
       <main className="country-list-container">
         {countries.length > 0 ? (
@@ -70,4 +83,4 @@ function App() {
   );
 }
 
-export default App; 
+export default App;
