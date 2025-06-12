@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { HashRouter, Routes, Route } from 'react-router-dom';
 import { getAllCountries, getCountriesByName, getCountriesByRegion } from './controllers/countryController';
 import CountryCard from './components/CountryCard/CountryCard';
 import SearchBar from './components/SearchBar/SearchBar';
@@ -97,7 +97,7 @@ function App() {
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   return (
-    <BrowserRouter>
+    <HashRouter>
       <div className="app-container">
         <header className="app-header">
           <h1>Country Dashboard</h1>
@@ -138,7 +138,7 @@ function App() {
           <Route path="/country/:countryCode" element={<CountryDetail />} />
         </Routes>
       </div>
-    </BrowserRouter>
+    </HashRouter>
   );
 }
 
